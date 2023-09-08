@@ -40,8 +40,6 @@ sessions = []
 for i in range(len(BOTS)):
     session_row = []
     for j in range(i + 1, len(BOTS)):
-        if j != 5:
-            continue
         session = create_game()
         session_row.append(session)
         P1_SPEC = importlib.util.find_spec(BOTS[i])
