@@ -913,6 +913,6 @@ def attack_building_discount(session_data, board):
 def actual_player_info(session_data):
     actual_player = None
     for player in session_data['players']:
-        if player['name'] == session_data['actual_player']:
+        if player['actual_player']:
             return player
     return None

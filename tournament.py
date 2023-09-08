@@ -13,9 +13,10 @@ BOTS = ['bot1', 'bot2', 'bot3', 'bot4', 'bot5', 'bot6']
 def play(bot):
     while True:
         session_data = bot.get_session_data()
-        if session_data.get('actual_player') is None:
+        player = bot.actual_player_info(session_data)
+        if player is None:
             break
-        if session_data['actual_player'] == bot.USERNAME:
+        if player['name'] == bot.USERNAME:
             print('turn', bot.USERNAME)
             bot.strategy(session_data)
         print('sleep', bot.USERNAME)

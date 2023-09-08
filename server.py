@@ -475,8 +475,6 @@ def session_data(session_id):
         if player_id is None:
             continue
         user = Users.query.filter_by(id=player_id).one()
-        if player_id == session.actual_player:
-            data['actual_player'] = user.name
         player_info = PlayerInfo.query.filter_by(
             session_id=session_id,
             player_id=player_id
@@ -498,6 +496,7 @@ def session_data(session_id):
         player_data['board'] = list(map(card_data, player_cards))
         player_data['hand'] = list(map(card_data, player_hand))
         player_data['had_passed'] = player_info.had_passed
+        player_data['actual_player'] = (player_id == session.actual_player)
         player_data['starting_tokens'] = list(map(
             lambda token: token.token_type,
             tokens
