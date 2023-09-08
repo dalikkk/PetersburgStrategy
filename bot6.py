@@ -47,7 +47,7 @@ def play(args):
         #exit(1)
 
 def get_session_data(session_id=SESSION):
-    resp = requests.get(HOST + STATUS_ENDPOINT + SESSION)
+    resp = requests.get(HOST + STATUS_ENDPOINT + session_id)
     if resp.status_code != 200:
         print(resp.json()["error"], file=sys.stderr)
         exit(1)
