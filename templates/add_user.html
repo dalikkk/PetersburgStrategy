@@ -1,0 +1,21 @@
+﻿{% if name %}
+H
+{% else %}
+<form method="POST">
+    {{form.hidden_tag()}}
+    {{form.name.label()}}
+    {{form.name()}}
+    {{form.password.label()}}
+    {{form.password()}}
+    {{form.submit()}}
+</form>
+
+
+{% endif %}
+
+{% for user in our_users %}
+{{user.id}}
+{{user.name}}
+{{user.email}}
+<br />
+{% endfor %}
