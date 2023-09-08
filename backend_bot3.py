@@ -2,12 +2,6 @@ import requests
 import sys
 import json
 
-USERNAME = 'dd'
-PASSWORD = 'd'
-HOST = 'http://localhost:5000'
-PLAY_ENDPOINT = '/game/api/'
-STATUS_ENDPOINT = '/game/api/session/'
-SESSION = '27'
 
 # interface with server
 ARGS = None
@@ -19,6 +13,7 @@ Function that sends move to server.
 """
 def play(args):
     print(args)
+    global ARGS
     ARGS = args
 
 """
