@@ -3,14 +3,6 @@ import sys
 import json
 from collections import Counter
 
-USERNAME = 'ddd'
-PASSWORD = 'd'
-HOST = 'http://localhost:5000'
-PLAY_ENDPOINT = '/game/api/'
-STATUS_ENDPOINT = '/game/api/session/'
-CARDLIST_ENDPOINT = '/api/cardlist/'
-SESSION = '129'
-
 # interface with server
 ARGS = None
 SESSION_DATA = None
@@ -764,6 +756,8 @@ def buy_hold_decision(session_data, card):
                             return False
                         if discounted_price - c['price'] < actual_player['money']:
                             best_c = c
+            if best_c is None:
+                return False
             if best_c['name'] == 'Ministress':
                 if card['price'] < 18:
                     return False

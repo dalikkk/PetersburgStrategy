@@ -646,7 +646,7 @@ def move(session_id, player_id, args):
 
     if session.actual_player is not None and session.actual_player <= len(BOTS):
         bot = BOTS[session.actual_player - 1]
-        if bot.CARDLIST:
+        if bot.CARDLIST is None:
             bot.CARDLIST = api_cards()
         bot.strategy(session_data(session_id))
         move(session_id, session.actual_player, bot.ARGS)
