@@ -1,6 +1,6 @@
 import sys
 sys.path.append("..")
-from server import db, app, CardPrototype
+from server import db, app, CardPrototype, Users, BOT_USERNAMES, TEST_USERS
 
 
 def create_cards_prototypes():
@@ -492,6 +492,25 @@ def create_cards_prototypes():
 
     db.session.commit()
 
+
+def create_users():
+    users = []
+    for bot_username in BOT_USERNAMES:
+        users.append(Users(
+            name=bot_username,
+            password=bot_username
+        ))
+    for test_user in TEST_USERS.keys():
+        users.append(Users(
+            name=test_user,
+            password=TEST_USERS[test_user]
+        ))
+
+    for user in users:
+        db.session.add(user)
+    db.session.commit()
+
 if __name__ == "__main__":
     with app.app_context():
         create_cards_prototypes()
+        create_users()

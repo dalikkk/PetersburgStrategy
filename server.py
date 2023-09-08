@@ -8,6 +8,13 @@ from sqlalchemy.orm import mapped_column
 import random
 from collections import Counter
 
+import backend_bot1, backend_bot2, backend_bot3, backend_bot4, backend_bot5, backend_bot6
+BOTS = [backend_bot1, backend_bot2, backend_bot3, backend_bot4, backend_bot5, backend_bot6]
+BOT_USERNAMES = ['bot1', 'bot2', 'bot3', 'bot4', 'bot5', 'bot6']
+assert len(BOTS) == len(BOT_USERNAMES)
+
+TEST_USERS = {'dd':'d', 'ddd': 'd'}
+
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = "secret key lalal"
@@ -253,6 +260,13 @@ def create_game(p1_id, p2_id, p3_id = None, p4_id = None):
     get_cards_from_deck(CARD_TYPES[0], session.id, 2*players_count)
     set_active_player(session.id)
     db.session.commit()
+    if session.actual_player is not None and session.actual_player <= len(BOTS):
+        bot = BOTS[session.actual_player - 1]
+        if bot.CARDLIST is None:
+            bot.CARDLIST = api_cards()
+        bot.strategy(session_data(session.id))
+        print("bot.ARGS", bot.ARGS)
+        move(session.id, session.actual_player, bot.ARGS)
     return session
     
 
@@ -523,6 +537,8 @@ def play(session_id):
     player = Users.query.filter_by(name=player_name).first()
     if player is None:
         return {"error": "No such user found"}
+    if player.id <= len(BOTS):
+        return {"error": "User is server bot."}
     if player.password != password:
         return {"error": "Invalid password"}
     session = Session.query.filter_by(id=session_id).first()
@@ -623,6 +639,17 @@ def move(session_id, player_id, args):
         next_player(session_id)
         
     db.session.commit()
+    # autoplay if bot strategy required
+    session = Session.query\
+              .filter_by(id = session_id)\
+              .one()
+
+    if session.actual_player is not None and session.actual_player <= len(BOTS):
+        bot = BOTS[session.actual_player - 1]
+        if bot.CARDLIST:
+            bot.CARDLIST = api_cards()
+        bot.strategy(session_data(session_id))
+        move(session_id, session.actual_player, bot.ARGS)
     return {"message": "Move performed succesfuly."}
 
 def check_pass(session_id):
