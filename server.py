@@ -357,31 +357,41 @@ def distribute_tokens(player_count):
 
 @app.route('/')
 def index():
-    return "<h1>Hello world!</h1>"
+    return render_template(
+        "index.html"
+    )
 
-@app.route('/user/add', methods=['GET', 'POST'])
+@app.route('/user/add/', methods=['GET', 'POST'])
 def add_user():
     form = UserForm()
     name = None
+    exists_user = False
+    bot_name = False
     if form.validate_on_submit():
-        user = Users.query.filter_by(name=form.name.data).first()
-        if user is None:
-            user = Users(name=form.name.data, password = form.password.data)
-            db.session.add(user)
-            db.session.commit()
-            # flash("User added succesfully")
+        name=form.name.data
+        if form.name.data.startswith("bot"):
+            bot_name = True
         else:
-            pass
-            # flash("User name exists in db")
-        name = form.name.data
-        form.name.data = ''
-        form.password.data = ''
+            user = Users.query.filter_by(name=form.name.data).first()
+            if user is None:
+                user = Users(name=form.name.data, password = form.password.data)
+                db.session.add(user)
+                db.session.commit()
+
+                name = form.name.data
+                form.name.data = ''
+                form.password.data = ''
+            else:
+                exists_user = True
+
     our_users = Users.query.order_by(Users.date_added)
     return render_template(
         "add_user.html",
         name=name,
         form=form,
-        our_users=our_users
+        our_users=list(our_users),
+        bot_name = bot_name,
+        exists_user=exists_user
     )
 
 
@@ -420,12 +430,6 @@ def cards():
         "card_list.html",
         cards=cards
     )
-
-
-# example for future
-@app.route('/users/<name>')
-def user(name):
-    return render_template('user.html', name=name)
 
 
 @app.route('/api/game/new/')

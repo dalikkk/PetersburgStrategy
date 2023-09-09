@@ -1,21 +1,47 @@
-﻿{% if name %}
-H
-{% else %}
+﻿{% extends "shared/layout.html" %}
+{%block title%}Add user{% endblock %}
+
+{% block body%}
+
+{% if name %}
+    {% if bot_name %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Cannot use <strong>{{name}}</strong> as username because it starts with <strong>bot</strong>.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% elif exists_user %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        User <strong>{{name}}</strong> already exists in database.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% else %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        User <strong>{{name}}</strong> succesfully added.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+{% endif %}
+
 <form method="POST">
     {{form.hidden_tag()}}
-    {{form.name.label()}}
-    {{form.name()}}
-    {{form.password.label()}}
-    {{form.password()}}
-    {{form.submit()}}
+    <div class="mb-3">
+        {{form.name.label(class='form-label')}}
+        {{form.name(class='form-control')}}
+    </div>
+    <div class="mb-3">
+        {{form.password.label(class='form-label')}}
+        {{form.password(class='form-control')}}
+    </div>
+    {{form.submit(class='btn btn-primary')}}
 </form>
 
 
+{% if our_users|length > 0 %}
+<strong>Users:</strong>
+<ol>
+    {% for user in our_users %}
+    <li>{{user.name}}</li>
+    {% endfor %}
+</ol>
 {% endif %}
-
-{% for user in our_users %}
-{{user.id}}
-{{user.name}}
-{{user.email}}
-<br />
-{% endfor %}
+{% endblock %}

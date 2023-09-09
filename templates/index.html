@@ -1,0 +1,27 @@
+{% extends "shared/layout.html"%}
+{%block title%}Saint Petersburg{%endblock%}
+
+{%block body%}
+<p>
+    This webpage, where you can test your strategies. Apart from web interface this page contains api. Therefore programming your strategies can be easier.
+</p>
+
+<p>
+    Here are some examples of endpoints, that might be useful to you: 
+    <ul>
+        <li><code>'/api/game/new/'</code> - get request takes argument player1, player2, player3 (optional) and player4 (optional) values are names of player returns <code>session id</code></li>
+        <li><code>/api/cardlist/</code> - api version of cards that are used in games (should not change in time)</li>
+        <li><code>/game/api/session/<session_id></code> - here is info about actual game status this is data you get for your strategy</li>
+        <li>
+            <code>/game/api/&lt;session_id&gt;</code> - here you send your move format of your data is based on what you want to do
+            <ul>
+                <li><code>&#123;'action': 'pass'&#125;</code> if you want to skip your turn</li>
+                <li><code>&#123;'action': 'hold', 'card_id': &lt;card_id&gt;&#125;</code> if you want to hold the card</li>
+                <li><code>&#123;'action': 'buy', 'card_id': &lt;card_id&gt;&#125;</code> if you want to buy the nonupgrade card</li>
+                <li><code>&#123;'action': 'buy', 'card_id': &lt;card_id&gt; 'upgrade_from': &lt;card_id&gt;&#125;</code> if you want to buy the upgrade card</li>
+            </ul>
+        </li>
+    </ul>
+</p>
+
+{%endblock%}
