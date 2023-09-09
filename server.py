@@ -84,6 +84,10 @@ class Session(db.Model):
         db.ForeignKey('user.id', ondelete="CASCADE")
     )
 
+    actual_player_index = db.Column(
+        db.Integer
+    )
+
     actual_phase = db.Column(
         db.String,
         default = CARD_TYPES[0]
@@ -92,6 +96,7 @@ class Session(db.Model):
 class PlayerInfo(db.Model):
     __tablename__ = 'player_info'
     id = db.Column(db.Integer, primary_key = True)
+    index = db.Column(db.Integer, nullable = False)
     session_id = db.Column(
         db.Integer,
         db.ForeignKey('session.id')
@@ -223,6 +228,7 @@ def create_game(p1_id, p2_id, p3_id = None, p4_id = None):
         db.session.add(hand)
         db.session.commit()
         player_info = PlayerInfo(
+            index=i,
             session_id = session.id,
             player_id = p_id,
             money = 25,
@@ -281,17 +287,18 @@ def create_game(p1_id, p2_id, p3_id = None, p4_id = None):
 
 def set_active_player(session_id):
     session = Session.query.filter_by(id=session_id).one()
-    for player_id in [
+    for i, player_id in enumerate([
         session.player1,
         session.player2,
         session.player3,
         session.player4
-    ]:
+    ]):
         if player_id is None:
             break
         player_info = PlayerInfo.query\
                       .filter_by(
                           session_id=session_id,
+                          index=i,
                           player_id=player_id
                       )\
                       .one()
@@ -303,6 +310,7 @@ def set_active_player(session_id):
                 ).first()
         if token is not None:
             session.actual_player = player_id
+            session.actual_player_index = i
 
         #token = StartToken.query\
         #        .join(PlayerInfo, StartToken.player_info == PlayerInfo.id)\
@@ -528,17 +536,18 @@ def session_data(session_id):
     players_data = []
     data['players'] = players_data
 
-    for player_id in [
+    for i, player_id in enumerate([
         session.player1,
         session.player2,
         session.player3,
         session.player4
-    ]:
+    ]):
         if player_id is None:
             continue
         user = Users.query.filter_by(id=player_id).one()
         player_info = PlayerInfo.query.filter_by(
             session_id=session_id,
+            index=i,
             player_id=player_id
         ).one()
         player_card_deck = Deck.query.filter_by(id=player_info.deck_id).one()
@@ -558,7 +567,10 @@ def session_data(session_id):
         player_data['board'] = list(map(card_data, player_cards))
         player_data['hand'] = list(map(card_data, player_hand))
         player_data['had_passed'] = player_info.had_passed
-        player_data['actual_player'] = (player_id == session.actual_player)
+        player_data['actual_player'] = (player_id == session.actual_player
+                                        and player_info.index == \
+                                        session.actual_player_index
+                                        )
         player_data['starting_tokens'] = list(map(
             lambda token: token.token_type,
             tokens
@@ -600,8 +612,13 @@ def play(session_id):
     
 def move(session_id, player_id, args):
     action = args.get('action')
+    session = Session.query\
+              .filter_by(id=session_id)\
+              .one()
+    print(session.actual_player_index)
     player_info = PlayerInfo.query.filter_by(
         session_id=session_id,
+        index=session.actual_player_index,
         player_id=player_id
     ).one()
 
@@ -704,16 +721,20 @@ def check_pass(session_id):
     session = Session.query\
               .filter_by(id = session_id)\
               .one()
-    for p_id in [
+    for i, p_id in enumerate([
         session.player1,
         session.player2,
         session.player3,
         session.player4
-    ]:
+    ]):
         if p_id is None:
             continue
         player_info = PlayerInfo.query\
-                      .filter_by(player_id = p_id, session_id = session_id)\
+                      .filter_by(
+                          player_id = p_id,
+                          index=i,
+                          session_id = session_id
+                      )\
                       .one()
         if not player_info.had_passed:
             return False
@@ -723,6 +744,12 @@ def next_player(session_id):
     session = Session.query\
               .filter_by(id=session_id)\
               .one()
+    player_count = PlayerInfo.query\
+                   .filter_by(session_id=session_id)\
+                   .count()
+    session.actual_player_index += 1
+    session.actual_player_index %= player_count
+
     if session.actual_player == session.player1:
         session.actual_player = session.player2
     elif session.actual_player == session.player2:
@@ -745,16 +772,20 @@ def next_phase(session_id):
     player_info_ids = []
     player_infos = []
     tokens = []
-    for p_id in [
+    for i, p_id in enumerate([
         session.player1,
         session.player2,
         session.player3,
         session.player4
-    ]:
+    ]):
         if p_id is None:
             continue
         player_info = PlayerInfo.query\
-                      .filter_by(player_id = p_id, session_id = session_id)\
+                      .filter_by(
+                          player_id = p_id,
+                          index=i,
+                          session_id = session_id
+                      )\
                       .one()
         player_info.had_passed = False
         player_info_ids.append(player_info.id)
@@ -830,16 +861,20 @@ def game_end(session_id):
     session = Session.query\
               .filter_by(id = session_id)\
               .one()
-    for p_id in [
+    for i, p_id in enumerate([
         session.player1,
         session.player2,
         session.player3,
         session.player4
-    ]:
+    ]):
         if p_id is None:
             continue
         player_info = PlayerInfo.query\
-                      .filter_by(player_id = p_id, session_id = session_id)\
+                      .filter_by(
+                          player_id = p_id,
+                          index=i,
+                          session_id = session_id
+                      )\
                       .one()
         hand_deck = Deck.query\
                     .filter_by(id=player_info.hand_id, deck_type='hand')\
