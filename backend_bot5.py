@@ -440,13 +440,15 @@ def discounted_card_price(session_data,
                           card,
                           consider_hold = False, # second round where there is not enough money
                           check_compatibility = True, # third round if compatible worker not found
-                          cardlist = CARDLIST
+                          cardlist = None
                           ):
     """
     Discounts card price of card.
     For worker upgrade return discount from upgraded card (of same type).
     Not defined for other upgrades.
     """
+    if cardlist is None:
+        cardlist = CARDLIST
     price = card['price']
     actual_player = actual_player_info(session_data)
     upgrade_from = None

@@ -362,7 +362,8 @@ def upgrade_strategy(session_data):
         for upgrade in upgrades:
             if upgrade['upgrade_type'] == 'worker':
                 discounted_price, upgrade_from = discounted_card_price(session_data, card)
-                if discounted_price <= actual_player['money']:
+                if discounted_price <= actual_player['money'] \
+                   and upgrade_from is not None:
                     play({
                         'action': 'buy',
                         'card_id': upgrade['id'],
@@ -561,13 +562,15 @@ def discounted_card_price(session_data,
                           card,
                           consider_hold = False, # second round where there is not enough money
                           check_compatibility = True, # third round if compatible worker not found
-                          cardlist = CARDLIST
+                          cardlist = None
                           ):
     """
     Discounts card price of card.
     For worker upgrade return discount from upgraded card (of same type).
     Not defined for other upgrades.
     """
+    if cardlist is None:
+        cardlist = CARDLIST
     price = card['price']
     actual_player = actual_player_info(session_data)
     upgrade_from = None
@@ -809,6 +812,8 @@ def buy_hold_decision(session_data, card):
                     return False
                 if discounted_price - c['price'] < actual_player['money']:
                     best_c = c
+        if best_c is None:
+                return False
         if best_c['name'] == 'Ministress':
             if card['price'] < 18:
                 return False
