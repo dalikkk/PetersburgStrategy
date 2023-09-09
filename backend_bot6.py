@@ -110,13 +110,14 @@ def worker_buy(session_data, card_options, hold=False):
             if (cheapest_card is None or
                 discounted_price < discounted_cheapest_price)\
                 and (
-                   ((hold and len(actual_player['hand']) < 3)
-                    or
-                    (
-                        not hold
-                        and discounted_price <= actual_player['money']
-                    )
-                   )
+                        (
+                            (hold and len(actual_player['hand']) < 3)
+                            or
+                            (
+                                not hold
+                                and discounted_price <= actual_player['money']
+                            )
+                        )
                    ):
                 cheapest_card = card
                 upgrade_from = upgrade_actual_from

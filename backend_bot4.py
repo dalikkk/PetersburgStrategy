@@ -69,12 +69,13 @@ def strategy(session_data):
             'action': 'pass'
         })
     elif session_data['actual_phase'] == "upgrade":
+        actual_player = actual_player_info(session_data)
         if cards_remaining(session_data) == 0:
             play({
                 'action': 'pass'
             })
             return
-        elif upgrade_hold(session_data):
+        elif len(actual_player['hand']) < 3 and upgrade_hold(session_data):
             return
         else:
             play({
@@ -97,11 +98,10 @@ def worker_buy(session_data, card_options, hold=False):
             if (cheapest_card is None or
                 discounted_price < discounted_cheapest_price)\
                 and (
-                   (hold and len(actual_player['hand'] < 3)
-                    or
-                    (not hold and discounted_price <= actual_player['money'])
-                    )
-                   ):
+                   (hold and len(actual_player['hand']) < 3)
+                   or
+                   (not hold and discounted_price <= actual_player['money'])
+                ):
                 cheapest_card = card
                 upgrade_from = upgrade_actual_from
     if cheapest_card is not None:

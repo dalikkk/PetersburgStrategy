@@ -449,9 +449,6 @@ def cards():
     )
 
 def new_game(p1, p2, p3, p4):
-    if p3 is None and p4 is not None:
-        return {"error": "Player3 is not defined but player4 is."}
-
     ids = []
 
     for p in [p1, p2]:
@@ -469,6 +466,8 @@ def new_game(p1, p2, p3, p4):
             ids.append(None)
 
     p1_id, p2_id, p3_id, p4_id = tuple(ids)
+    if p3_id is None and p4_id is not None:
+        return {"error": "Player3 is not defined but player4 is."}
     session = create_game(p1_id, p2_id, p3_id, p4_id)
     return {"session": session.id}
 
@@ -688,7 +687,6 @@ def move(session_id, player_id, args):
                 return {"error": "Cannot hold this card (not on common board)."}
             card_hand_count = CardInstance.query\
                               .filter_by(
-                                  prototype_id=card_instance.prototype_id,
                                   deck_id=hand.id
                               )\
                               .count()
@@ -712,7 +710,10 @@ def move(session_id, player_id, args):
         if bot.CARDLIST is None:
             bot.CARDLIST = api_cards()
         bot.strategy(session_data(session_id))
-        move(session_id, session.actual_player, bot.ARGS)
+        result = move(session_id, session.actual_player, bot.ARGS)
+        if result is None or result.get('error'):
+            raise Exception(result.get('error'))
+
     return {"message": "Move performed succesfuly."}
 
 def check_pass(session_id):
