@@ -461,14 +461,13 @@ def new_game(p1, p2, p3, p4):
         ids.append(player.id)
     for p in [p3, p4]:
         if p:
-            print(p)
             player = Users.query.filter_by(name=p).first()
             if player is None:
                 return {"error": "No such user."}
+            ids.append(player.id)
         else:
-            print('p -> None')
-            p = None
-        ids.append(p)
+            ids.append(None)
+
     p1_id, p2_id, p3_id, p4_id = tuple(ids)
     session = create_game(p1_id, p2_id, p3_id, p4_id)
     return {"session": session.id}
@@ -615,7 +614,6 @@ def move(session_id, player_id, args):
     session = Session.query\
               .filter_by(id=session_id)\
               .one()
-    print(session.actual_player_index)
     player_info = PlayerInfo.query.filter_by(
         session_id=session_id,
         index=session.actual_player_index,
@@ -750,20 +748,15 @@ def next_player(session_id):
     session.actual_player_index += 1
     session.actual_player_index %= player_count
 
-    if session.actual_player == session.player1:
-        session.actual_player = session.player2
-    elif session.actual_player == session.player2:
-        if session.player3 is None:
-            session.actual_player = session.player1
-        else:
-            session.actual_player = session.player3
-    elif session.actual_player == session.player3:
-        if session.player4 is None:
-            session.actual_player = session.player1
-        else:
-            session.actual_player = session.player4
-    elif session.actual_player == session.player4:
+    if session.actual_player_index == 0:
         session.actual_player = session.player1
+    elif session.actual_player_index == 1:
+        session.actual_player = session.player2
+    elif session.actual_player_index == 2:
+        session.actual_player = session.player3
+    elif session.actual_player_index == 3:
+        session.actual_player = session.player4
+
 
 def next_phase(session_id):
     session = Session.query\
@@ -902,6 +895,7 @@ def game_end(session_id):
         player_info.money %= 10
         print("points now", player_info.points)
     session.actual_player = None
+    session.actual_player_index = None
     db.session.commit()
         
 
