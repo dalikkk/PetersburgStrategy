@@ -363,7 +363,7 @@ def create_cards_prototypes():
     cards.append(CardPrototype(
         name = "Winter palace",
         price = 19,
-        money_income = 3,
+        money_income = 2,
         point_income = 5,
         card_type = 'upgrade',
         upgrade_type = 'building',
