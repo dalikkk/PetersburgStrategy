@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField, SelectField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
+from flask_bootstrap import Bootstrap5
 from datetime import datetime
 from sqlalchemy.orm import mapped_column
 import random
@@ -24,6 +25,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 CARD_TYPES = ['worker', 'building', 'aristocrat', 'upgrade']
 # Initialize db
 db = SQLAlchemy(app)
+bootstrap = Bootstrap5(app)
 
 class Users(db.Model):
     __tablename__ = 'user'
@@ -157,6 +159,13 @@ class UserForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
+
+class NewGameForm(FlaskForm):
+    player1 = SelectField('Player 1', coerce=str, validators=[DataRequired()])
+    player2 = SelectField('Player 2', coerce=str, validators=[DataRequired()])
+    player3 = SelectField('Player 3', coerce=str)
+    player4 = SelectField('Player 4', coerce=str)
+    submit = SubmitField("Submit")
 
 def create_game(p1_id, p2_id, p3_id = None, p4_id = None):
     assert p1_id is not None
@@ -431,40 +440,75 @@ def cards():
         cards=cards
     )
 
-
-@app.route('/api/game/new/')
-def new_game():
-    p1 = request.args.get("player1")
-    p2 = request.args.get("player2")
-    p3 = request.args.get("player3")
-    p4 = request.args.get("player4")
-
+def new_game(p1, p2, p3, p4):
     if p3 is None and p4 is not None:
-        return {"error": "Player3 is not defined but player4 is"}
+        return {"error": "Player3 is not defined but player4 is."}
 
     ids = []
 
     for p in [p1, p2]:
         player = Users.query.filter_by(name=p).first()
         if player is None:
-            return {"error": "No such user"}
+            return {"error": "No such user."}
         ids.append(player.id)
     for p in [p3, p4]:
-        if p is not None:
-            player = Users.qury.filter_by(name=p).first()
+        if p:
+            print(p)
+            player = Users.query.filter_by(name=p).first()
             if player is None:
-                return {"error": "No such user"}
+                return {"error": "No such user."}
+        else:
+            print('p -> None')
+            p = None
         ids.append(p)
     p1_id, p2_id, p3_id, p4_id = tuple(ids)
     session = create_game(p1_id, p2_id, p3_id, p4_id)
     return {"session": session.id}
 
-@app.route('/game/new/')
+@app.route('/api/game/new/')
+def new_game_api():
+    p1 = request.args.get("player1")
+    p2 = request.args.get("player2")
+    p3 = request.args.get("player3")
+    p4 = request.args.get("player4")
+    return new_game(p1, p2, p3, p4)
+
+
+@app.route('/game/new/', methods=['GET', 'POST'])
 def new_game_view():
-    result = new_game()
-    if result.get('error'):
-        return "An error occured: " + result['error']
-    return "Session id: " + str(result['session'])
+    user_choices = list(map(
+        lambda user: (user.name, user.name),
+        Users.query.order_by(Users.date_added)
+    ))
+
+    form = NewGameForm()
+    for x in [form.player1, form.player2]:
+        x.choices = user_choices
+    for x in [form.player3, form.player4]:
+        x.choices = [('', 'Select player')] + user_choices
+
+    if form.validate_on_submit():
+        result = new_game(
+            form.player1.data,
+            form.player2.data,
+            form.player3.data,
+            form.player4.data
+        )
+        if result.get('session'):
+            flash(
+                "New game created. Session id: " + str(result['session']),
+                'success'
+            )
+            form.player1.data = ''
+            form.player2.data = ''
+            form.player3.data = ''
+            form.player4.data = ''
+        else:
+            flash(result['error'], 'error')
+    return render_template(
+        'new_game.html',
+        form=form
+    )
 
 @app.route('/game/api/session/<session_id>')
 def session_data(session_id):

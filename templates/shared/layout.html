@@ -26,7 +26,7 @@
                         <a class="nav-link" href="/cardlist/">Cardlist</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">New game</a>
+                        <a class="nav-link" href="/game/new/">New game</a>
                     </li>
                 </ul>
             </div>
@@ -37,6 +37,33 @@
 
     <div class="container">
         <main role="main" class="pb-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'error' %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{message}}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% elif category == 'success' %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{message}}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% elif category == 'warning' %}
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                {{message}}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                {{message}}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             {% block body %}{% endblock %}
         </main>
     </div>
