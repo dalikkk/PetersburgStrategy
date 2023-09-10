@@ -2,12 +2,12 @@ import requests
 import sys
 import json
 
-USERNAME = 'ddd'
+USERNAME = 'dd'
 PASSWORD = 'd'
 HOST = 'http://localhost:5000'
 PLAY_ENDPOINT = '/game/api/'
 STATUS_ENDPOINT = '/game/api/session/'
-SESSION = '63'
+SESSION = '10'
 
 
 """
@@ -17,13 +17,10 @@ def play(args):
     print(args)
     args['name'] = USERNAME
     args['password'] = PASSWORD
-    headers = {"content-type": "application/json"}
     
     resp = requests.post(
         HOST + PLAY_ENDPOINT + SESSION,
-        #verify=False,
-        data=json.dumps(args),
-        headers=headers
+        data=args,
     )
 
     if resp.status_code != 200:

@@ -10,10 +10,10 @@
     {% set background = 'warning' %}
 {% endif %}
 
-<div class="card text-bg-{{background}} mb-3" style="max-width: 10rem; min-width: 10rem">
+<div class="card text-bg-{{background}} mb-3" style="max-width: 10rem; min-width: 10rem" data-card-id="{{card['id']}}">
     <div class="card-header">
         {% if card['discounted']%}
-        <strong><del>{{card['price']}}</del></strong> <strong class="discounted">{{card['price'] - 1}}</strong>
+        <strong><del>{{card['price']}}</del></strong> <strong class="discounted">{{[1, card['price'] - 1] | max}}</strong>
         {% else %}
         <strong>{{card['price']}}</strong>
         {% endif %}
@@ -36,16 +36,16 @@
     </div>
     <div class="card-body text-center card-action">
         {% if deck == 'board'%}
-            <a href="#" class="btn btn-primary">Buy</a>
-            <a href="#" class="btn btn-primary">Hold</a>
+            <a href="#" class="btn btn-primary" data-action="buy">Buy</a>
+            <a href="#" class="btn btn-primary" data-action="hold">Hold</a>
         {% elif deck == 'player' %}
             {% if card['card_type'] == 'upgrade' %}
-                <a href="#" class="btn disabled btn-secondary">Upgrade</a>
+                <a href="#" class="btn disabled btn-secondary" data-action="upgrade">Upgrade</a>
             {% else %}
-                <a href="#" class="btn btn-primary">Upgrade</a>
+                <a href="#" class="btn btn-primary" data-action="upgrade">Upgrade</a>
             {% endif %}
         {% elif deck == 'hand' %}
-            <a href="#" class="btn btn-primary">Buy</a>
+            <a href="#" class="btn btn-primary" data-action="buy">Buy</a>
         {% endif %}
     </div>
 </div>
@@ -74,12 +74,15 @@
         {{player['name']}}
         {% if player['actual_player'] %}
         on turn
+        <a href="#" id="pass-btn" class="btn btn-outline-primary">Pass</a>
         {% endif %}
     </h3>
 
     <strong>Player money: </strong> {{player['money']}}
     <br />
     <strong>Player points: </strong> {{player['points']}}
+    <br />
+    <strong>Starting: </strong> {{player['starting_tokens'] | join(', ') }}
     <br />
     <strong>Player board:</strong>
     {% if player['board'] | length == 0 %}
@@ -96,4 +99,5 @@
     {% endif %}
 {% endfor %}
 
+<script type="text/javascript" src="{{url_for('static', filename='js/moves.js')}}"></script>
 {% endblock %}

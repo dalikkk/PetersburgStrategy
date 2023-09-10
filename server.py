@@ -586,11 +586,15 @@ def session_data(session_id):
 @app.route('/game/api/<session_id>', methods=['POST'])
 def play(session_id):
     session_id = int(session_id)
-    args = request.get_json()
+    args = request.form
     print("Session id:", session_id)
     # authentication and authorization
     player_name = args.get('name')
+    if player_name is None:
+        player_name = request.cookies.get('user')
     password = args.get('password')
+    if password is None:
+        password = request.cookies.get('password')
     if player_name is None or password is None:
         return {"error": "Name or password not specified"}
     player = Users.query.filter_by(name=player_name).first()
@@ -698,7 +702,7 @@ def move(session_id, player_id, args):
             else:
                 return {"error": "Full hand (max 3 cards in hand)."}
         else:
-            return {"error": "Unknown action " + action + "."}
+            return {"error": "Unknown action " + str(action) + "."}
         next_player(session_id)
         
     db.session.commit()
@@ -938,8 +942,6 @@ def card_data(card_instance):
 def session_finder():
     session_data = []
     for session in Session.query.order_by(Session.id.desc()):
-        print(session.id, session.player1, session.player2, session.player3,
-              session.player4)
         s = types.SimpleNamespace()
         p1 = Users.query.filter_by(id=session.player1).one()
         p2 = Users.query.filter_by(id=session.player2).one()
