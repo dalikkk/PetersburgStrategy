@@ -18,7 +18,6 @@ CARDLIST = None
 Function that sends move to server.
 """
 def play(args):
-    print(args)
     global ARGS
     ARGS = args
 

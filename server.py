@@ -280,7 +280,6 @@ def create_game(p1_id, p2_id, p3_id = None, p4_id = None):
         if bot.CARDLIST is None:
             bot.CARDLIST = api_cards()
         bot.strategy(session_data(session.id))
-        print("bot.ARGS", bot.ARGS)
         move(session.id, session.actual_player, bot.ARGS)
     return session
     
@@ -888,13 +887,9 @@ def game_end(session_id):
                 )).keys())
         if count > 10:
             count = 10
-        print("points before", player_info.points)
-        print("money before", player_info.money)
-        print("count", count)
         player_info.points += count * (count + 1) // 2
         player_info.points += player_info.money // 10
         player_info.money %= 10
-        print("points now", player_info.points)
     session.actual_player = None
     session.actual_player_index = None
     db.session.commit()
