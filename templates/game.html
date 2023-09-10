@@ -66,6 +66,7 @@
 
 {%block body%}
 <h2>Common board</h2>
+<strong>Actual phase: </strong> {{data['actual_phase']}}<br />
 {{cardlist_html(data['board'], 'board')}}
 
 {% for player in data['players'] %}
