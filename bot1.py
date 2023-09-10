@@ -2,8 +2,11 @@ import requests
 import sys
 import json
 
+# these are assigned for test user
+# feel free to create your own user (wia web interface)
 USERNAME = 'dd'
 PASSWORD = 'd'
+
 HOST = 'http://localhost:5000'
 PLAY_ENDPOINT = '/game/api/'
 STATUS_ENDPOINT = '/game/api/session/'
