@@ -9,6 +9,9 @@
 
 .float-child {
     float: left;
+}
+
+.card {
     margin: 2px;
 }
 
@@ -20,4 +23,20 @@
     .broad-container {
         max-width: 1350px;
     }
+}
+
+.income-info {
+    width: 50%;
+}
+
+.card-action {
+    padding-top: 0px;
+}
+
+.discounted {
+    color: red;
+}
+
+.card-name {
+    min-height: 40px;
 }

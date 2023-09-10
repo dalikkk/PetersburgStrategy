@@ -1,54 +1,98 @@
 {% extends "shared/layout.html"%}
 {% from 'bootstrap5/form.html' import render_form %}
 
+{% macro card_html(card, deck) %}
+{% if card['card_type'] == 'worker' or (card['card_type'] == 'upgrade' and card['upgrade_type'] == 'worker')%}
+    {% set background = 'success' %}
+{% elif card['card_type'] == 'building' or (card['card_type'] == 'upgrade' and card['upgrade_type'] == 'building')%}
+    {% set background = 'info' %}
+{% elif card['card_type'] == 'aristocrat' or (card['card_type'] == 'upgrade' and card['upgrade_type'] == 'aristocrat')%}
+    {% set background = 'warning' %}
+{% endif %}
 
+<div class="card text-bg-{{background}} mb-3" style="max-width: 10rem; min-width: 10rem">
+    <div class="card-header">
+        {% if card['discounted']%}
+        <strong><del>{{card['price']}}</del></strong> <strong class="discounted">{{card['price'] - 1}}</strong>
+        {% else %}
+        <strong>{{card['price']}}</strong>
+        {% endif %}
+        {% if card['card_type'] == 'upgrade' %}
+        (upgrade)
+        {% endif %}
+    </div>
+    <div class="card-body">
+        {% if card['name'] | length >= 12 %}
+        <h6 class="card-title text-center card-name"><strong>{{card['name']}}</strong></h6>
+        {% else %}
+        <h5 class="card-title text-center card-name"><strong>{{card['name']}}</strong></h5>
+        {% endif %}
+
+        <div class="text-center float-container">
+            <div class="float-child income-info">{{card['money_income']}}</div>
+            <div class="float-child income-info">{{card['point_income']}}</div>
+            <div class="float-clear"></div>
+        </div>
+    </div>
+    <div class="card-body text-center card-action">
+        {% if deck == 'board'%}
+            <a href="#" class="btn btn-primary">Buy</a>
+            <a href="#" class="btn btn-primary">Hold</a>
+        {% elif deck == 'player' %}
+            {% if card['card_type'] == 'upgrade' %}
+                <a href="#" class="btn disabled btn-secondary">Upgrade</a>
+            {% else %}
+                <a href="#" class="btn btn-primary">Upgrade</a>
+            {% endif %}
+        {% elif deck == 'hand' %}
+            <a href="#" class="btn btn-primary">Buy</a>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro cardlist_html(cards, deck) %}
+<div class="float-container">
+    {% for card in cards %}
+        <div class="float-child">
+            {{card_html(card, deck)}}
+        </div>
+    {% endfor %}
+    <div class="float-clear"></div>
+</div>
+{% endmacro %}
 
 {%block title%}Game status{%endblock%}
 
 {%block body%}
 <h2>Common board</h2>
-<div class="float-container">
-    {% for i in range(8) %}
-    <div class="card text-bg-{{'warning'}} mb-3 float-child" style="max-width: 10rem; min-width: 10rem">
-        <div class="card-header"><strike> 18 </strike> 17 (upgrade)</div>
-        <div class="card-body">
-            <!--<h6 class="card-title text-center"><strong>Czar and carpenter</strong></h6>-->
-            <h5 class="card-title text-center"><strong>Ministress</strong></h5>
-            <!--<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
-            <div class="text-center flex-container">
-                <div class="flex-child">6</div>
-                <div class="flex-child">3</div>
-            </div>
-        </div>
-        <div class="card-body text-center">
-            <a href="#" class="btn btn-primary">Buy</a>
-            <a href="#" class="btn btn-primary">Hold</a>
-        </div>
-    </div>
-    {% endfor %}
-    <div class="float-clear"></div>
-</div>
+{{cardlist_html(data['board'], 'board')}}
 
-<h3>Board of bot1</h3>
-<div class="flex-container">
-    {% for i in range(15) %}
-    <div class="card text-bg-{{'warning'}} mb-3 flex-child" style="max-width: 10rem; min-width: 10rem;">
-        <div class="card-header"><strike> 18 </strike> 17 (upgrade)</div>
-        <div class="card-body">
-            <!--<h6 class="card-title text-center"><strong>Czar and carpenter</strong></h6>-->
-            <h5 class="card-title text-center"><strong>Ministress</strong></h5>
-            <!--<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
-            <div class="text-center flex-container">
-                <div class="flex-child">6</div>
-                <div class="flex-child">3</div>
-            </div>
-        </div>
-        <div class="card-body text-center">
-            <a href="#" class="btn btn-primary">Buy</a>
-            <a href="#" class="btn btn-primary">Hold</a>
-        </div>
-    </div>
-    {% endfor %}
-    <div></div>
-</div>
+{% for player in data['players'] %}
+    <h3>
+        {{player['name']}}
+        {% if player['actual_player'] %}
+        on turn
+        {% endif %}
+    </h3>
+
+    <strong>Player money: </strong> {{player['money']}}
+    <br />
+    <strong>Player points: </strong> {{player['points']}}
+    <br />
+    <strong>Player board:</strong>
+    {% if player['board'] | length == 0 %}
+        empty <br />
+    {% else %}
+        {{cardlist_html(player['board'], 'player')}}
+    {% endif %}
+
+    <strong>Player hand:</strong>
+    {% if player['hand'] | length == 0 %}
+        empty <br />
+    {% else %}
+        {{cardlist_html(player['hand'], 'hand')}}
+    {% endif %}
+{% endfor %}
+
 {% endblock %}
