@@ -9,6 +9,8 @@ from sqlalchemy.orm import mapped_column
 import random
 from collections import Counter
 
+import types
+
 import backend_bot1, backend_bot2, backend_bot3, backend_bot4, backend_bot5, backend_bot6
 BOTS = [backend_bot1, backend_bot2, backend_bot3, backend_bot4, backend_bot5, backend_bot6]
 BOT_USERNAMES = ['bot1', 'bot2', 'bot3', 'bot4', 'bot5', 'bot6']
@@ -930,6 +932,34 @@ def card_data(card_instance):
                             .one()
         data['upgrade_limitation'] = upgrade_prototype.name
     return data
+
+
+@app.route('/game/session/')
+def session_finder():
+    session_data = []
+    for session in Session.query.order_by(Session.id.desc()):
+        print(session.id, session.player1, session.player2, session.player3,
+              session.player4)
+        s = types.SimpleNamespace()
+        p1 = Users.query.filter_by(id=session.player1).one()
+        p2 = Users.query.filter_by(id=session.player2).one()
+        s.id = session.id
+        s.player1 = p1.name
+        s.player2 = p2.name
+
+        p3 = None
+        if session.player3 is not None:
+            p3 = Users.query.filter_by(id=session.player3).one()
+            s.player3 = p3.name
+        p4 = None
+        if session.player4 is not None:
+            p4 = Users.query.filter_by(id=session.player4).one()
+            s.player4 = p4.name
+        session_data.append(s)
+    return render_template(
+        'session_finder.html',
+        session_data=session_data
+    )
         
 
 @app.route('/game/session/<session_id>')

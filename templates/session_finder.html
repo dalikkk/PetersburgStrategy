@@ -1,0 +1,34 @@
+{% extends "shared/layout.html"%}
+{%block title%}Saint Petersburg - cardlist{%endblock%}
+
+{%block body%}
+{%if session_data|length == 0%}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>No games are created yet.</strong> You can create game <a href="/game/new/">here</a>.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% else %}
+<table class="table table-striped table-hover table-center">
+    <thead>
+        <tr>
+            <th>Session id</th>
+            <th>Player 1</th>
+            <th>Player 2</th>
+            <th>Player 3</th>
+            <th>Player 4</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for session in session_data %}
+            <tr>
+                <td><a href="/game/session/{{session.id}}">{{session.id}}</a></td>
+                <td>{{session.player1}}</td>
+                <td>{{session.player2}}</td>
+                <td>{{session.player3}}</td>
+                <td>{{session.player4}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}
