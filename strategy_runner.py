@@ -43,7 +43,7 @@ def main():
     bot.SESSION = str(session)
     play(bot)
 
-    session_data = get_session_data(session)
+    session_data = bot.get_session_data(session)
     my_points = session_data['players'][0]['points']
     opponent_points = session_data['players'][1]['points']
     if my_points < opponent_points:
