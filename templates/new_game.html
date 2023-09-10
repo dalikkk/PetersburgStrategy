@@ -3,5 +3,11 @@
 {%block title%}New game{%endblock%}
 
 {%block body%}
-{{render_form(form)}}
+    {% if session_id %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            New game created. Session id: <a href="/game/session/{{session_id}}">{{session_id}}</a>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    {{render_form(form)}}
 {% endblock %}

@@ -483,6 +483,8 @@ def new_game_api():
 
 @app.route('/game/new/', methods=['GET', 'POST'])
 def new_game_view():
+    success_message = None
+    session_id = None
     user_choices = list(map(
         lambda user: (user.name, user.name),
         Users.query.order_by(Users.date_added)
@@ -502,19 +504,17 @@ def new_game_view():
             form.player4.data
         )
         if result.get('session'):
-            flash(
-                "New game created. Session id: " + str(result['session']),
-                'success'
-            )
             form.player1.data = ''
             form.player2.data = ''
             form.player3.data = ''
             form.player4.data = ''
+            session_id = result['session']
         else:
             flash(result['error'], 'error')
     return render_template(
         'new_game.html',
-        form=form
+        form=form,
+        session_id=session_id
     )
 
 @app.route('/game/api/session/<session_id>')
