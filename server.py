@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, redirect
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, SelectField
 from wtforms.validators import DataRequired
@@ -965,7 +965,10 @@ def session_finder():
 @app.route('/game/session/<session_id>')
 def session_info(session_id):
     data = session_data(session_id)
-    # TODO
+    if data.get('error'):
+        flash(data['error'], 'error')
+        return redirect('/game/session/')
+
     return render_template(
         'game.html',
         broad_container = True,
