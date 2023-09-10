@@ -940,9 +940,11 @@ def card_data(card_instance):
 def session_info(session_id):
     data = session_data(session_id)
     # TODO
-    return render_template('game.html', data=data)
-
-
+    return render_template(
+        'game.html',
+        broad_container = True,
+        data=data
+    )
 
 
 

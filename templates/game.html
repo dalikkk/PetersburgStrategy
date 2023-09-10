@@ -1,0 +1,54 @@
+﻿{% extends "shared/layout.html"%}
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+
+{%block title%}Game status{%endblock%}
+
+{%block body%}
+<h2>Common board</h2>
+<div class="float-container">
+    {% for i in range(8) %}
+    <div class="card text-bg-{{'warning'}} mb-3 float-child" style="max-width: 10rem; min-width: 10rem">
+        <div class="card-header"><strike> 18 </strike> 17 (upgrade)</div>
+        <div class="card-body">
+            <!--<h6 class="card-title text-center"><strong>Czar and carpenter</strong></h6>-->
+            <h5 class="card-title text-center"><strong>Ministress</strong></h5>
+            <!--<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
+            <div class="text-center flex-container">
+                <div class="flex-child">6</div>
+                <div class="flex-child">3</div>
+            </div>
+        </div>
+        <div class="card-body text-center">
+            <a href="#" class="btn btn-primary">Buy</a>
+            <a href="#" class="btn btn-primary">Hold</a>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="float-clear"></div>
+</div>
+
+<h3>Board of bot1</h3>
+<div class="flex-container">
+    {% for i in range(15) %}
+    <div class="card text-bg-{{'warning'}} mb-3 flex-child" style="max-width: 10rem; min-width: 10rem;">
+        <div class="card-header"><strike> 18 </strike> 17 (upgrade)</div>
+        <div class="card-body">
+            <!--<h6 class="card-title text-center"><strong>Czar and carpenter</strong></h6>-->
+            <h5 class="card-title text-center"><strong>Ministress</strong></h5>
+            <!--<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>-->
+            <div class="text-center flex-container">
+                <div class="flex-child">6</div>
+                <div class="flex-child">3</div>
+            </div>
+        </div>
+        <div class="card-body text-center">
+            <a href="#" class="btn btn-primary">Buy</a>
+            <a href="#" class="btn btn-primary">Hold</a>
+        </div>
+    </div>
+    {% endfor %}
+    <div></div>
+</div>
+{% endblock %}

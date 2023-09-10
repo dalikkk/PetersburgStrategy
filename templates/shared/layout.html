@@ -35,7 +35,7 @@
 
     <br />
 
-    <div class="container">
+    <div class="container {% if broad_container %}broad-container{% endif %}">
         <main role="main" class="pb-3">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}

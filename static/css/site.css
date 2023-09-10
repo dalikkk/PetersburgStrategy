@@ -2,3 +2,22 @@
     text-align: center;
     vertical-align: middle;
 }
+
+.float-container {
+    padding: 3px;
+}
+
+.float-child {
+    float: left;
+    margin: 2px;
+}
+
+.float-clear {
+    clear: both;
+}
+
+@media (min-width: 1400px) {
+    .broad-container {
+        max-width: 1350px;
+    }
+}
