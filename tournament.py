@@ -12,7 +12,7 @@ BOTS = ['bot1', 'bot2', 'bot3', 'bot4', 'bot5', 'bot6']
 
 def play(bot):
     while True:
-        session_data = bot.get_session_data()
+        session_data = bot.get_session_data(bot.SESSION)
         player = bot.actual_player_info(session_data)
         if player is None:
             break
@@ -34,46 +34,45 @@ def create_game():
         print(resp.json()['error'], file=sys.stderr)
     return resp.json()['session']
 
+def main():
+    sessions = []
 
+    for i in range(len(BOTS)):
+        session_row = []
+        for j in range(i + 1, len(BOTS)):
+            session = create_game()
+            session_row.append(session)
+            P1_SPEC = importlib.util.find_spec(BOTS[i])
+            P2_SPEC = importlib.util.find_spec(BOTS[j])
+            p1 = importlib.util.module_from_spec(P1_SPEC)
+            p2 = importlib.util.module_from_spec(P2_SPEC)
+            P1_SPEC.loader.exec_module(p1)
+            P2_SPEC.loader.exec_module(p2)
 
-sessions = []
+            # just in case you would need also to list in modules
+            # sys.modules['p1'] = p1
+            del P1_SPEC
+            del P2_SPEC
 
-for i in range(len(BOTS)):
-    session_row = []
-    for j in range(i + 1, len(BOTS)):
-        session = create_game()
-        session_row.append(session)
-        P1_SPEC = importlib.util.find_spec(BOTS[i])
-        P2_SPEC = importlib.util.find_spec(BOTS[j])
-        p1 = importlib.util.module_from_spec(P1_SPEC)
-        p2 = importlib.util.module_from_spec(P2_SPEC)
-        P1_SPEC.loader.exec_module(p1)
-        P2_SPEC.loader.exec_module(p2)
+            p1.SESSION = str(session)
+            p2.SESSION = str(session)
+            p1.USERNAME = 'dd'
+            p2.USERNAME = 'ddd'
+            # they share predefined password 'd'
 
-        # just in case you would need also to list in modules
-        # sys.modules['p1'] = p1
-        del P1_SPEC
-        del P2_SPEC
+            jobs = []
+            t1 = threading.Thread(target=lambda:play(p1))
+            jobs.append(t1)
+            t2 = threading.Thread(target=lambda:play(p2))
+            jobs.append(t2)
 
-        p1.SESSION = str(session)
-        p2.SESSION = str(session)
-        p1.USERNAME = 'dd'
-        p2.USERNAME = 'ddd'
-        # they share predefined password 'd'
+            for j in jobs:
+                j.start()
+            for j in jobs:
+                j.join()
 
-        jobs = []
-        t1 = threading.Thread(target=lambda:play(p1))
-        jobs.append(t1)
-        t2 = threading.Thread(target=lambda:play(p2))
-        jobs.append(t2)
-
-        for j in jobs:
-            j.start()
-        for j in jobs:
-            j.join()
-
-        print('================== Game', session, 'finished =================')
-    sessions.append(session_row)
+            print('================== Game', session, 'finished =================')
+        sessions.append(session_row)
 
 
 
