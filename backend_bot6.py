@@ -479,10 +479,10 @@ def open_hold_buy(session_data):
                 if cheapest_card is not None \
                    and discounted_cheapest_price is not None\
                    and discounted_cheapest_price <= actual_player['money'] - 7:
-                    args = {"action": "buy", "card_id": "cheapest_card"}
+                    args = {"action": "buy", "card_id": cheapest_card['id']}
                     if upgrade_from is not None:
                         args['upgrade_from'] = upgrade_from['id']
-                    play({"action": "buy", "card_id": "cheapest_card"})
+                    play({"action": "buy", "card_id": cheapest_card['id']})
                     return True
                 else:
                     play({"action": "pass"})
@@ -750,7 +750,7 @@ def buy_hold_decision(session_data, card):
                                 play({
                                     'action': 'buy',
                                     'card_id': card['id'],
-                                    'upgrade_from': 'upgrade_from'
+                                    'upgrade_from': upgrade_from['id']
                                 })
                                 return True
                             return False
@@ -803,7 +803,7 @@ def buy_hold_decision(session_data, card):
                             play({
                                 'action': 'buy',
                                 'card_id': card['id'],
-                                'upgrade_from': 'upgrade_from'
+                                'upgrade_from': upgrade_from['id']
                             })
                             return True
                         return False
