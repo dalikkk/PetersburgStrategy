@@ -975,7 +975,25 @@ def session_info(session_id):
         data=data
     )
 
-
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    form = UserForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(
+            name=form.name.data,
+            password=form.password.data
+        ).first()
+        if user is None:
+            flash('Username or password is incorrect.', 'error')
+        else:
+            resp = redirect('/')
+            resp.set_cookie('user', user.name)
+            resp.set_cookie('password', user.password)
+            return resp
+    return render_template(
+        'login.html',
+        form = form
+    )
 
 if __name__ == "__main__":
     app.run()
