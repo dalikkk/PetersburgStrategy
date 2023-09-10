@@ -676,6 +676,7 @@ def move(session_id, player_id, args):
                     if card_instance_from is not None:
                         db.session.delete(card_instance_from)
                     card_instance.deck_id = player_board.id
+                    card_instance.discounted = False
                 else:
                     return {"error": "Not enough money to buy this card."}
             else:
