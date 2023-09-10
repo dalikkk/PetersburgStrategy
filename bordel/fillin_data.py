@@ -195,7 +195,7 @@ def create_cards_prototypes():
 
     cards.append(CardPrototype(
         name = "Controller",
-        price = 12,
+        price = 14,
         money_income = 4,
         point_income = 1,
         card_type = 'aristocrat',
