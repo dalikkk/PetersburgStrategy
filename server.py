@@ -662,6 +662,13 @@ def move(session_id, player_id, args):
                         return {
                             "error": "Not specified from which card to upgrade"
                         }
+                    deck = Deck.query.filter_by(
+                        id=card_instance_from.deck_id
+                    ).one()
+                    if player_info.deck_id != deck.id:
+                        return {
+                            "error": "Card you want to upgrade is not on your board."
+                        }
                     card_prototype_from = CardPrototype.query.filter_by(
                         id=card_instance_from.prototype_id
                     ).one()
@@ -718,7 +725,9 @@ def move(session_id, player_id, args):
         bot.strategy(session_data(session_id))
         result = move(session_id, session.actual_player, bot.ARGS)
         if result is None or result.get('error'):
-            raise Exception(result.get('error'))
+            raise Exception(
+                result.get('error') + "\nSession id: " + str(session.id)
+            )
 
     return {"message": "Move performed succesfuly."}
 
