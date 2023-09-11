@@ -629,7 +629,7 @@ def discounted_card_price(session_data,
                 # try firstly direct upgrade then consider czar and carpenter
                 for board_card in actual_player['board']:
                     if board_card.get('upgrade_limitation') == card['name']:
-                        upgrade_discount = card['price'] - board_card['price']
+                        upgrade_discount = board_card['price']
                         upgrade_from = board_card
                         break
                 # if price is high or board does not have an upgrade consider czar and carpenter
@@ -648,15 +648,15 @@ def discounted_card_price(session_data,
                 # try firstly czar and carpenter then other card
                 # here is buy and hold preference the same
                 for board_card in actual_player['board']:
-                    if card['name'] == 'Czar and carpenter':
-                        upgrade_discount = card['price'] # 8
+                    if board_card['name'] == 'Czar and carpenter':
+                        upgrade_discount = board_card['price'] # 8
                         upgrade_from = board_card
                         break
 
                 if upgrade_discount is None:
                     for board_card in actual_player['board']:
                         if board_card.get('upgrade_limitation') == card['name']:
-                            upgrade_discount = card['price'] - board_card['price']
+                            upgrade_discount = board_card['price']
                             upgrade_from = board_card
                             break
                 
@@ -665,7 +665,7 @@ def discounted_card_price(session_data,
                 for card_prototype in cardlist:
                     # only direct upgrade, not czar and carpenter
                     if card_prototype.get('upgrade_limitation') == card['name']:
-                        upgrade_discount = card['price'] - board_card['price']
+                        upgrade_discount = card_prototype['price']
                         # upgrade from is irelevant -> we are holding upgrade
 
     if upgrade_discount is not None:
