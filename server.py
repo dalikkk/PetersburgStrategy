@@ -672,6 +672,21 @@ def move(session_id, player_id, args):
                     card_prototype_from = CardPrototype.query.filter_by(
                         id=card_instance_from.prototype_id
                     ).one()
+
+                    if card_prototype_from.card_type != card.upgrade_type:
+                        return {
+                            "error": "Card you want to upgrade does not share " + \
+                                "type with upgrade type of card you want to buy."
+                        }
+
+                    if card_prototype_from.upgrade_limitation is not None:
+                        if card_prototype_from.upgrade_limitation != \
+                           card.id:
+                            return {
+                                "error": "Card you want to upgrade does not fulfill " +\
+                                    "upgrade limitation property."
+                            }
+
                     discount += card_prototype_from.price
                 if card_instance.discounted:
                     discount += 1
