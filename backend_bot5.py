@@ -454,6 +454,9 @@ def discounted_card_price(session_data,
         if card['name'] == board_card['name'] and not consider_hold:
             price -= 1
 
+    if card['discounted']:
+        price -= 1
+
     upgrade_discount = None
 
     if card['card_type'] == 'upgrade':

@@ -208,6 +208,39 @@ def building_strategy(session_data):
             play({'action': 'buy', 'card_id': buildings[0]['id']})
             return
 
+    if actual_player['money'] >= 20:
+        # upgrade building
+        buildings = list(filter(
+            lambda card: card['card_type'] == 'building',
+            actual_player['board']
+        ))
+
+        buildings.sort(
+            key=lambda building: building['price'],
+        )
+
+        upgrades = list(filter(
+            lambda card: card['card_type'] == 'upgrade' \
+            and card['upgrade_type'] == 'building',
+            session_data['board'] + actual_player['hand']
+        ))
+
+        for building in buildings:
+            for upgrade in upgrades:
+                if building['price'] < upgrade['price']:
+                    discounted_price, _ = discounted_card_price(
+                        session_data,
+                        building
+                    )
+                    upgrade_price = max(1, discounted_price - building['price'])
+                    if upgrade_price <= actual_player['money']:
+                        play({
+                            'action': 'buy',
+                            'card_id': upgrade['id'],
+                            'upgrade_from': building['id']
+                        })
+                        return True
+
     if open_hold_buy(session_data):
         return True
     play({"action": "pass"})
@@ -218,7 +251,7 @@ def aristocrat_strategy(session_data):
     for deck in [session_data['board'], actual_player['hand']]:
         aristocrats = list(filter(
             lambda card: card['card_type'] == 'aristocrat',
-            session_data['board']
+            deck
         ))
         aristocrats.sort(key=lambda card: card['price'], reverse = True)
         for card in aristocrats:
@@ -226,7 +259,7 @@ def aristocrat_strategy(session_data):
             if discounted_price <= actual_player['money']:
                 play({"action": "buy", "card_id": card['id']})
                 return
-            if len(actual_player['hand']) < 3:
+            if len(actual_player['hand']) < 3 and deck != actual_player['hand']:
                 play({'action': 'hold', 'card_id': card['id']})
                 return
 
@@ -621,6 +654,9 @@ def discounted_card_price(session_data,
         if card['name'] == board_card['name'] and not consider_hold:
             price -= 1
 
+    if card['discounted']:
+        price -= 1
+
     if card['card_type'] == 'upgrade':
         # discount by card type
         if card['upgrade_type'] == 'worker':
@@ -731,7 +767,7 @@ def try_buy_or_hold_good_card(session_data):
     if cards_remaining(session_data) >= 2:
         for card in session_data['board']:
             if card['card_type'] == 'upgrade' \
-               and card['card_type'] == 'building':
+               and card['upgrade_type'] == 'building':
                 if buy_hold_decision(session_data, card):
                     return True
 
