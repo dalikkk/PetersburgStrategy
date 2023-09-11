@@ -392,6 +392,46 @@ def upgrade_strategy(session_data):
         if try_buy_or_hold_good_card(session_data):
             return
 
+        # worker phase following
+        upgrades = list(filter(
+            lambda card: card['card_type'] == 'upgrade' \
+            and card['upgrade_type'] == 'worker',
+            session_data['board']
+        ))
+
+
+        for upgrade in upgrades:
+            discounted_price, upgrade_from = discounted_card_price(
+                session_data, upgrade
+            )
+
+            buy = discounted_price <= actual_player['money'] and \
+                  upgrade_from is not None and \
+                  (
+                      upgrade['discounted'] or
+                      len(actual_player['hand']) == 3
+                  )
+            hold = len(actual_player['hand']) < 3 and\
+                   (
+                       upgrade_from is not None or
+                       cards_remaining(session_data) >= 5
+                   )
+
+            if buy:
+                play({
+                    'action': 'buy',
+                    'card_id': upgrade['id'],
+                    'upgrade_from': upgrade_from['id']
+                })
+                return
+            if hold:
+                play({
+                    'action': 'hold',
+                    'card_id': upgrade['id']
+                })
+                return
+
+
         if cards_remaining(session_data) >= 5:
             if open_hold_buy(session_data):
                 return
