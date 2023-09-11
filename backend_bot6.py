@@ -249,9 +249,10 @@ def aristocrat_strategy(session_data):
         duplicits.sort(key=lambda card: card['price'])
 
         for upgrade in upgrades:
+            discounted_price, _ = discounted_card_price(session_data, upgrade)
             for duplicity in duplicits:
                 if upgrade['price'] >= duplicity['price']:
-                    if upgrade['price'] - duplicity['price'] <= actual_player['money'] \
+                    if discounted_price - duplicity['price'] <= actual_player['money'] \
                        and actual_player['money'] > 0:
                         play({
                             "action": "buy",
@@ -263,11 +264,13 @@ def aristocrat_strategy(session_data):
             for aristocrat in aristocrats:
                 if not economic_upgrade(session_data, aristocrat, upgrade, deck):
                     continue
-                play({
-                    'action': 'buy',
-                    'card_id': upgrade['id'],
-                    "upgrade_from": aristocrat['id']
-                })
+                if discounted_price - aristocrat['price'] <= actual_player['money'] \
+                       and actual_player['money'] > 0:
+                    play({
+                        'action': 'buy',
+                        'card_id': upgrade['id'],
+                        "upgrade_from": aristocrat['id']
+                    })
 
             if len(actual_player['hand']) < 3 and deck == session_data['board']:
                 play({
@@ -465,7 +468,6 @@ def buy_most_expensive(session_data, phase, limit = None, filter_useless=True):
         return False
 
 def open_hold_buy(session_data):
-    print("open_hold")
     assert session_data['actual_phase'] in ['building', 'upgrade']
     next_phase = None
     if session_data['actual_phase'] == 'building':
