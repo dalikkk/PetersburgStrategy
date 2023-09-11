@@ -589,7 +589,7 @@ def open_hold_buy(session_data):
                 return True
         if hand_space >= 2:
             cheapest_card = get_cheapest_card(session_data, allow_hand=True)
-            if cheapest_card['price'] >= actual_player['money'] - 18:
+            if cheapest_card['price'] <= actual_player['money'] - 18:
                 play({"action": "buy", "card_id": cheapest_card['id']})
             else:
                 cheapest_card = get_cheapest_card(session_data, allow_hand=False)
