@@ -910,7 +910,7 @@ def attack_building_discount(session_data, board):
                 if building['price'] > discounted_price:
                     play({"action": "buy", 'card_id': building['id']})
                     return True
-        if building['price'] <= 11:
+        if building['price'] == 11:
             if discounted_price <= 9 and actual_player['money'] >= 20:
                 play({"action": "buy", 'card_id': building['id']})
                 return True
